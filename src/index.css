@@ -6,16 +6,19 @@
 
 @layer utilities {
   * {
-    @apply m-0 box-border bg-[#eee] p-0 text-[#222];
+    @apply m-0 box-border p-0 text-[#222];
   }
   body {
-    @apply sm:px-4 md:px-8 lg:px-24;
+    @apply bg-[#f9f9f9] sm:px-4 md:px-8 lg:px-24;
   }
 }
 
 @layer components {
   .form-input {
     @apply rounded-none border-none p-4 hover:border-none focus:border-none focus:ring-0;
+  }
+  .shadow-input {
+    @apply shadow-light-surface !important;
   }
 }
 
