@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useTodoStore } from '../strore/store'
+import { useTodoStore } from '../store/store'
 import { Card } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import truncateText from '../utils/truncateText'
@@ -57,11 +57,13 @@ const NoteSpace: React.FC = () => {
               }}
             />
           ]}
-          title={truncateText(todo.title, 20)}
+          title={
+            <p className='font-bold italic'>{truncateText(todo.title, 20)}</p>
+          }
           className='shadow-input mb-4 cursor-pointer break-inside-avoid bg-[#f9f9f9] font-extrabold'
           onClick={() => handleCardClick(todo)}
         >
-          <MarkdownRenderer>{truncateText(todo.content, 300)}</MarkdownRenderer>
+          <MarkdownRenderer>{truncateText(todo.content, 320)}</MarkdownRenderer>
         </Card>
       ))}
       {selectedTodo && !isEditing && (

@@ -7,7 +7,7 @@ export default {
       typography: {
         DEFAULT: {
           css: {
-            maxWidth: '65ch',
+            maxWidth: '100%',
             color: 'inherit',
             a: {
               color: '#3182ce',

@@ -1,8 +1,28 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Form, Input } from 'antd'
-import { useTodoStore } from '../strore/store'
-
-const { TextArea } = Input
+import { useTodoStore } from '../store/store'
+import Heading from '@tiptap/extension-heading'
+import Paragraph from '@tiptap/extension-paragraph'
+import Blockquote from '@tiptap/extension-blockquote'
+import Placeholder from '@tiptap/extension-placeholder'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
+import Code from '@tiptap/extension-code'
+import CodeBlock from '@tiptap/extension-code-block'
+import Italic from '@tiptap/extension-italic'
+import Link from '@tiptap/extension-link'
+import Strike from '@tiptap/extension-strike'
+import TextStyle from '@tiptap/extension-text-style'
+import Underline from '@tiptap/extension-underline'
+import BulletList from '@tiptap/extension-bullet-list'
+import ListItem from '@tiptap/extension-list-item'
+import Highlight from '@tiptap/extension-highlight'
+import Toolbar from './Toolbar'
+import Color from '@tiptap/extension-color'
+import Image from '@tiptap/extension-image'
+import Text from '@tiptap/extension-text'
+import Document from '@tiptap/extension-document'
+import { EditorContent, useEditor } from '@tiptap/react'
+import Bold from '@tiptap/extension-bold'
 
 interface FormFields {
   id?: string
@@ -12,7 +32,7 @@ interface FormFields {
 
 interface InputFormProps {
   initialValues?: FormFields | null
-  onClose: () => void
+  onClose?: () => void
   isEditing?: boolean
 }
 
@@ -24,38 +44,93 @@ const InputForm: React.FC<InputFormProps> = ({
   const [form] = Form.useForm<FormFields>()
   const [isExpanded, setIsExpanded] = useState(!!initialValues)
   const formRef = useRef<HTMLDivElement>(null)
+  const toolbarRef = useRef<HTMLDivElement>(null)
   const addTodo = useTodoStore((state) => state.addTodo)
   const editTodo = useTodoStore((state) => state.editTodo)
 
-  const handleSave = useCallback(() => {
-    const { title, content } = form.getFieldsValue()
-    const trimmedTitle = (title ?? '').trim()
-    const trimmedContent = (content ?? '').trim()
+  const editor = useEditor({
+    extensions: [
+      Document,
+      Text,
+      Heading,
+      Paragraph,
+      Blockquote,
+      HorizontalRule,
+      Placeholder.configure({ placeholder: 'Text something...' }),
+      Code,
+      CodeBlock.configure({}),
+      Italic,
+      Link,
+      Strike,
+      TextStyle,
+      Underline,
+      Highlight,
+      BulletList,
+      ListItem,
+      Color,
+      Image,
+      Bold
+    ],
+    content: initialValues?.content || '',
+    onUpdate: ({ editor }) => {
+      form.setFieldsValue({ content: editor.getHTML() })
+    }
+  })
 
-    if (trimmedTitle !== '' || trimmedContent !== '') {
+  const handleSave = useCallback(() => {
+    const { title } = form.getFieldsValue()
+    const content = editor?.getHTML() || ''
+    const trimmedTitle = (title ?? '').trim()
+    const trimmedContent = content.trim()
+
+    if (
+      trimmedTitle !== '' ||
+      (trimmedContent !== '' && editor?.getText().trim().length)
+    ) {
+      const id = initialValues?.id || Date.now().toString()
       if (initialValues?.id) {
-        editTodo(initialValues.id, title, content)
+        editTodo(id, trimmedTitle, trimmedContent)
       } else {
-        addTodo(title, content)
+        addTodo(trimmedTitle, trimmedContent)
       }
       form.resetFields()
+      editor?.commands.setContent('')
     }
     setIsExpanded(false)
     if (onClose) {
       onClose()
     }
-  }, [addTodo, editTodo, form, initialValues, onClose])
+  }, [addTodo, editTodo, form, initialValues, onClose, editor])
 
   useEffect(() => {
-    form.setFieldsValue(initialValues || { title: '', content: '' })
-  }, [form, initialValues])
+    form.setFieldsValue({ title: initialValues?.title || '' })
+    editor?.commands.setContent(initialValues?.content || '')
+  }, [form, initialValues, editor])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+      if (
+        formRef.current &&
+        !formRef.current.contains(event.target as Node) &&
+        toolbarRef.current &&
+        !toolbarRef.current.contains(event.target as Node) &&
+        !isElementInToolbar(event.target as HTMLElement)
+      ) {
         handleSave()
       }
     }
+
+    const isElementInToolbar = (element: HTMLElement): boolean => {
+      let currentElement = element
+      while (currentElement) {
+        if (currentElement.classList.contains('ant-select-dropdown')) {
+          return true
+        }
+        currentElement = currentElement.parentElement as HTMLElement
+      }
+      return false
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
@@ -71,24 +146,25 @@ const InputForm: React.FC<InputFormProps> = ({
       {isExpanded && <div className='fixed inset-0 z-20 bg-black/50' />}
       <div
         ref={formRef}
-        className={`${isEditing || isExpanded ? 'shadow-none' : 'shadow-input'} ${isEditing ? 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2' : 'absolute left-[50%] -translate-x-1/2'} z-20 h-auto w-full max-w-xl transform overflow-hidden rounded-lg bg-[#f9f9f9]`}
+        className={`${isEditing || isExpanded ? 'shadow-none' : 'shadow-input'} ${isEditing ? 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2' : 'absolute left-[50%] -translate-x-1/2'} z-20 h-auto w-full max-w-3xl transform overflow-hidden rounded-lg bg-[#f9f9f9]`}
       >
         <Form form={form} onClick={handleFocus}>
           {isExpanded && (
             <Form.Item name='title' className='mb-0'>
               <Input
-                className='form-input text-lg font-bold'
+                className='form-input bg-[#f9f9f9] text-lg font-bold hover:bg-[#f9f9f9] focus:bg-[#f9f9f9] focus:outline-none'
                 placeholder='Title'
               />
             </Form.Item>
           )}
-          <Form.Item name='content' className='mb-0'>
-            <TextArea
-              className='form-input bg-[#f9f9f9]'
-              placeholder='Take a note...'
-              autoSize={{ minRows: isExpanded ? 3 : 1, maxRows: 25 }}
-            />
-          </Form.Item>
+          <div className='form-input bg-[#f9f9f9] py-0 hover:bg-[#f9f9f9] focus:bg-[#f9f9f9] focus:outline-none'>
+            <EditorContent editor={editor} className='prose w-full' />
+            {isExpanded && (
+              <div ref={toolbarRef}>
+                <Toolbar editor={editor} />
+              </div>
+            )}
+          </div>
         </Form>
       </div>
     </section>
