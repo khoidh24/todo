@@ -23,6 +23,10 @@ import Text from '@tiptap/extension-text'
 import Document from '@tiptap/extension-document'
 import { EditorContent, useEditor } from '@tiptap/react'
 import Bold from '@tiptap/extension-bold'
+import { Markdown } from 'tiptap-markdown'
+import History from '@tiptap/extension-history'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 
 interface FormFields {
   id?: string
@@ -69,7 +73,28 @@ const InputForm: React.FC<InputFormProps> = ({
       ListItem,
       Color,
       Image,
-      Bold
+      Bold,
+      Markdown.configure({
+        html: true, // Allow HTML input/output
+        tightLists: true, // No <p> inside <li> in markdown output
+        tightListClass: 'tight', // Add class to <ul> allowing you to remove <p> margins when tight
+        bulletListMarker: '-', // <li> prefix in markdown output
+        linkify: false, // Create links from "https://..." text
+        breaks: false, // New lines (\n) in markdown input are converted to <br>
+        transformPastedText: false, // Allow to paste markdown text in the editor
+        transformCopiedText: false // Copied text is transformed to markdown
+      }),
+      History.configure({
+        depth: 20,
+        newGroupDelay: 1000
+      }),
+      TaskList,
+      TaskItem.configure({
+        nested: false,
+        HTMLAttributes: {
+          class: 'flex items-start my-1'
+        }
+      })
     ],
     content: initialValues?.content || '',
     onUpdate: ({ editor }) => {
@@ -157,10 +182,13 @@ const InputForm: React.FC<InputFormProps> = ({
               />
             </Form.Item>
           )}
-          <div className='form-input bg-[#f9f9f9] py-0 hover:bg-[#f9f9f9] focus:bg-[#f9f9f9] focus:outline-none'>
-            <EditorContent editor={editor} className='prose w-full' />
+          <div className='form-input min-h[2em] relative max-h-[44em] w-full overflow-auto bg-[#f9f9f9] py-0 hover:bg-[#f9f9f9] focus:bg-[#f9f9f9] focus:outline-none'>
+            <EditorContent
+              editor={editor}
+              className='ProseMirror prose prose-sm'
+            />
             {isExpanded && (
-              <div ref={toolbarRef}>
+              <div ref={toolbarRef} className='h-[62px] w-full'>
                 <Toolbar editor={editor} />
               </div>
             )}

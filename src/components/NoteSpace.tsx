@@ -63,7 +63,7 @@ const NoteSpace: React.FC = () => {
           className='shadow-input mb-4 cursor-pointer break-inside-avoid bg-[#f9f9f9] font-extrabold'
           onClick={() => handleCardClick(todo)}
         >
-          <MarkdownRenderer>{truncateText(todo.content, 320)}</MarkdownRenderer>
+          <MarkdownRenderer content={truncateText(todo.content, 320)} />
         </Card>
       ))}
       {selectedTodo && !isEditing && (

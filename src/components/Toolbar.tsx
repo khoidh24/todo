@@ -18,7 +18,8 @@ import {
   Palette,
   Strikethrough,
   Underline,
-  Image
+  Image,
+  ListTodo
 } from 'lucide-react'
 
 interface ToolbarProps {
@@ -67,7 +68,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
 
   const tools: Tool[] = [
     {
-      icon: <Palette color={currentColor} />,
+      icon: <Palette color={currentColor} size={16} />,
       title: 'Color',
       action: () => {
         const input = document.createElement('input')
@@ -83,20 +84,30 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
       isActive: () => editor.isActive('textStyle', { color: currentColor })
     },
     {
-      icon: <Bold color={editor.isActive('bold') ? 'green' : '#000'} />,
+      icon: (
+        <Bold color={editor.isActive('bold') ? 'green' : '#000'} size={16} />
+      ),
       title: 'Bold',
       action: () => editor.chain().focus().toggleBold().run(),
       isActive: () => editor.isActive('bold')
     },
     {
-      icon: <Italic color={editor.isActive('italic') ? 'green' : '#000'} />,
+      icon: (
+        <Italic
+          color={editor.isActive('italic') ? 'green' : '#000'}
+          size={16}
+        />
+      ),
       title: 'Italic',
       action: () => editor.chain().focus().toggleItalic().run(),
       isActive: () => editor.isActive('italic')
     },
     {
       icon: (
-        <Underline color={editor.isActive('underline') ? 'green' : '#000'} />
+        <Underline
+          color={editor.isActive('underline') ? 'green' : '#000'}
+          size={16}
+        />
       ),
       title: 'Underline',
       action: () => editor.chain().focus().toggleUnderline().run(),
@@ -104,7 +115,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
     },
     {
       icon: (
-        <Strikethrough color={editor.isActive('strike') ? 'green' : '#000'} />
+        <Strikethrough
+          color={editor.isActive('strike') ? 'green' : '#000'}
+          size={16}
+        />
       ),
       title: 'Strikethrough',
       action: () => editor.chain().focus().toggleStrike().run(),
@@ -114,6 +128,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
       icon: (
         <ListOrdered
           color={editor.isActive('orderedList') ? 'green' : '#000'}
+          size={16}
         />
       ),
       title: 'Ordered List',
@@ -121,28 +136,52 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
       isActive: () => editor.isActive('orderedList')
     },
     {
-      icon: <List color={editor.isActive('bulletList') ? 'green' : '#000'} />,
+      icon: (
+        <List
+          color={editor.isActive('bulletList') ? 'green' : '#000'}
+          size={16}
+        />
+      ),
       title: 'Bullet List',
       action: () => editor.chain().focus().toggleBulletList().run(),
       isActive: () => editor.isActive('bulletList')
     },
     {
       icon: (
-        <ListVideo color={editor.isActive('listItem') ? 'green' : '#000'} />
+        <ListVideo
+          color={editor.isActive('listItem') ? 'green' : '#000'}
+          size={16}
+        />
       ),
       title: 'Sink List',
       action: () => editor.chain().focus().sinkListItem('listItem').run(),
       isActive: () => editor.isActive('listItem')
     },
     {
-      icon: <Code color={editor.isActive('codeBlock') ? 'green' : '#000'} />,
+      icon: (
+        <ListTodo
+          color={editor.isActive('taskList') ? 'green' : '#000'}
+          size={16}
+        />
+      ),
+      title: 'Todo List',
+      action: () => editor.chain().focus().toggleTaskList().run(),
+      isActive: () => editor.isActive('taskList')
+    },
+    {
+      icon: (
+        <Code
+          color={editor.isActive('codeBlock') ? 'green' : '#000'}
+          size={16}
+        />
+      ),
       title: 'Code',
       action: () =>
         editor.chain().focus().setCodeBlock({ language: codeLanguage }).run(),
       isActive: () => editor.isActive('codeBlock')
     },
     {
-      icon: <Image />,
+      icon: <Image size={16} />,
       title: 'Insert Image',
       action: () => {
         setUploadModalVisible(true)
@@ -177,11 +216,12 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
   }
 
   return (
-    <div className='flex items-center space-x-2 border-b p-2'>
+    <div className='py-1` fixed bottom-0 left-0 z-30 flex w-full items-center gap-2 justify-self-start bg-white px-2'>
       <Select
         value={currentHeading}
         onChange={handleHeadingChange}
-        style={{ width: 150 }}
+        className='w-[150px]'
+        size='small'
         options={headingOptions.map((option) => ({
           value: option.value,
           label: (
@@ -204,9 +244,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
       <Select
         value={codeLanguage}
         onChange={(value) => setCodeLanguage(value)}
-        style={{ width: 150 }}
         options={languageOptions}
-        className={editor.isActive('codeBlock') ? 'block' : 'hidden'}
+        size='small'
+        className={`${editor.isActive('codeBlock') ? 'block' : 'hidden'} w-[150px] text-xs`}
       />
       <Modal
         open={uploadModalVisible}

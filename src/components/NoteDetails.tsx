@@ -25,9 +25,7 @@ const NoteDetails: React.FC<NoteDetailsProps> = ({ todo, onClose }) => {
         className='max-h-[80%] w-full max-w-2xl overflow-auto rounded-lg bg-white p-4 shadow-lg sm:mx-4 md:mx-4 lg:mx-auto'
         onClick={(e) => e.stopPropagation()} // Prevent onClose when clicking inside the card
       >
-        <MarkdownRenderer className='overflow-y-auto'>
-          {todo.content}
-        </MarkdownRenderer>
+        <MarkdownRenderer className='overflow-y-auto' content={todo.content} />
       </Card>
     </div>
   )

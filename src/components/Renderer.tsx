@@ -1,3 +1,6 @@
+import React, { useRef, useEffect } from 'react'
+import { FormInstance } from 'antd'
+import { EditorContent, useEditor } from '@tiptap/react'
 import Heading from '@tiptap/extension-heading'
 import Paragraph from '@tiptap/extension-paragraph'
 import Blockquote from '@tiptap/extension-blockquote'
@@ -17,23 +20,26 @@ import Color from '@tiptap/extension-color'
 import Image from '@tiptap/extension-image'
 import Text from '@tiptap/extension-text'
 import Document from '@tiptap/extension-document'
-import { EditorContent, useEditor } from '@tiptap/react'
 import Bold from '@tiptap/extension-bold'
 import { Markdown } from 'tiptap-markdown'
 import History from '@tiptap/extension-history'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import { useEffect } from 'react'
+import Toolbar from './Toolbar'
 
-interface MarkdownRendererProps {
-  content: string
-  className?: string
+interface ContentEditorProps {
+  initialValues?: { content: string } | undefined | null
+  onUpdate: (content: string) => void
+  form: FormInstance
 }
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
-  content,
-  className = ''
+const Renderer: React.FC<ContentEditorProps> = ({
+  initialValues,
+  onUpdate,
+  form
 }) => {
+  const toolbarRef = useRef<HTMLDivElement>(null)
+
   const editor = useEditor({
     extensions: [
       Document,
@@ -57,14 +63,14 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       Image,
       Bold,
       Markdown.configure({
-        html: true, // Allow HTML input/output
-        tightLists: true, // No <p> inside <li> in markdown output
-        tightListClass: 'tight', // Add class to <ul> allowing you to remove <p> margins when tight
-        bulletListMarker: '-', // <li> prefix in markdown output
-        linkify: false, // Create links from "https://..." text
-        breaks: false, // New lines (\n) in markdown input are converted to <br>
-        transformPastedText: false, // Allow to paste markdown text in the editor
-        transformCopiedText: false // Copied text is transformed to markdown
+        html: true,
+        tightLists: true,
+        tightListClass: 'tight',
+        bulletListMarker: '-',
+        linkify: false,
+        breaks: false,
+        transformPastedText: false,
+        transformCopiedText: false
       }),
       History.configure({
         depth: 20,
@@ -78,21 +84,24 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         }
       })
     ],
-    content,
-    editable: false
+    content: initialValues?.content || '',
+    onUpdate: ({ editor }) => {
+      onUpdate(editor.getHTML())
+    }
   })
 
   useEffect(() => {
-    editor?.commands.setContent(content)
-  }, [content, editor])
+    editor?.commands.setContent(initialValues?.content || '')
+  }, [initialValues, editor])
 
   return (
-    <div
-      className={`ProseMirror prose prose-sm max-w-none overflow-hidden text-inherit ${className}`}
-    >
-      <EditorContent editor={editor} />
+    <div className='form-input min-h[2em] relative max-h-[44em] w-full overflow-auto bg-[#f9f9f9] py-0 hover:bg-[#f9f9f9] focus:bg-[#f9f9f9] focus:outline-none'>
+      <EditorContent editor={editor} className='ProseMirror prose prose-sm' />
+      <div ref={toolbarRef} className='h-[62px] w-full'>
+        <Toolbar editor={editor} />
+      </div>
     </div>
   )
 }
 
-export default MarkdownRenderer
+export default Renderer

@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
+@layer base {
   * {
     @apply m-0 box-border p-0 text-[#222];
   }
@@ -38,4 +38,62 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+.ProseMirror {
+  > ul[data-type='taskList'] {
+    list-style: none;
+    padding: 0;
+
+    p {
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.5em;
+
+      > label {
+        flex: 0 0 auto;
+        margin-right: 0.5em;
+        user-select: none;
+      }
+
+      > div {
+        flex: 1 1 auto;
+      }
+
+      ul li,
+      ol li {
+        display: list-item;
+      }
+
+      ul[data-type='taskList'] > li {
+        display: flex;
+      }
+    }
+  }
+}
+
+.ProseMirror ul[data-type='taskList'] {
+  padding-left: 0;
+}
+
+.ProseMirror ul[data-type='taskList'] li {
+  display: flex;
+  align-items: flex-start;
+}
+
+.ProseMirror ul[data-type='taskList'] li > label {
+  margin-right: 0.5em;
+  user-select: none;
+}
+
+.ProseMirror ul[data-type='taskList'] li > div {
+  flex: 1;
+}
+
+.ProseMirror img {
+  max-width: 100%;
 }
