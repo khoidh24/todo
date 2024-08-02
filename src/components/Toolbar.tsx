@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Tooltip, Select, Modal, Upload } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
+import { Button, Tooltip, Select } from 'antd'
 import { Editor } from '@tiptap/react'
 import {
   Bold,
@@ -38,7 +37,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
   const [currentColor, setCurrentColor] = useState('#000000')
   const [currentHeading, setCurrentHeading] = useState('paragraph')
   const [codeLanguage, setCodeLanguage] = useState('plaintext')
-  const [uploadModalVisible, setUploadModalVisible] = useState(false)
 
   const headingOptions = [
     { value: 'paragraph', label: 'Paragraph', icon: null },
@@ -183,9 +181,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
     {
       icon: <Image size={16} />,
       title: 'Insert Image',
-      action: () => {
-        setUploadModalVisible(true)
-      },
+      action: () => handleUploadImage(),
       isActive: () => false
     }
   ]
@@ -205,14 +201,18 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
     }
   }
 
-  const handleUpload = (file: File) => {
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const result = event.target?.result as string
-      editor.chain().focus().setImage({ src: result }).run()
-      setUploadModalVisible(false)
+  const handleUploadImage = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0]
+      if (file) {
+        const src = URL.createObjectURL(file)
+        editor.chain().focus().setImage({ src }).run()
+      }
     }
-    reader.readAsDataURL(file)
+    input.click()
   }
 
   return (
@@ -248,22 +248,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         size='small'
         className={`${editor.isActive('codeBlock') ? 'block' : 'hidden'} w-[150px] text-xs`}
       />
-      <Modal
-        open={uploadModalVisible}
-        title='Insert Image'
-        onCancel={() => setUploadModalVisible(false)}
-        footer={null}
-      >
-        <Upload
-          beforeUpload={(file) => {
-            handleUpload(file)
-            return false
-          }}
-          showUploadList={false}
-        >
-          <Button icon={<UploadOutlined />}>Select File</Button>
-        </Upload>
-      </Modal>
     </div>
   )
 }

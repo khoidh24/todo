@@ -15,6 +15,7 @@ import TextStyle from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
 import BulletList from '@tiptap/extension-bullet-list'
 import ListItem from '@tiptap/extension-list-item'
+import OrderedList from '@tiptap/extension-ordered-list'
 import Highlight from '@tiptap/extension-highlight'
 import Toolbar from './Toolbar'
 import Color from '@tiptap/extension-color'
@@ -71,6 +72,7 @@ const InputForm: React.FC<InputFormProps> = ({
       Highlight,
       BulletList,
       ListItem,
+      OrderedList,
       Color,
       Image,
       Bold,
